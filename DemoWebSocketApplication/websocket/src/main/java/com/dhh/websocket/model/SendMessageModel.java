@@ -12,20 +12,15 @@ public class SendMessageModel implements Parcelable {
     private String jsonMessage;
     private String messageType;
     private String messageUid ;
-    private Long sessionId = 0L;
 
     public SendMessageModel() {
     }
+
 
     protected SendMessageModel(Parcel in) {
         jsonMessage = in.readString();
         messageType = in.readString();
         messageUid = in.readString();
-        if (in.readByte() == 0) {
-            sessionId = null;
-        } else {
-            sessionId = in.readLong();
-        }
     }
 
     @Override
@@ -33,12 +28,6 @@ public class SendMessageModel implements Parcelable {
         dest.writeString(jsonMessage);
         dest.writeString(messageType);
         dest.writeString(messageUid);
-        if (sessionId == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeLong(sessionId);
-        }
     }
 
     @Override
@@ -80,13 +69,5 @@ public class SendMessageModel implements Parcelable {
 
     public void setMessageUid(String messageUid) {
         this.messageUid = messageUid;
-    }
-
-    public Long getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
     }
 }

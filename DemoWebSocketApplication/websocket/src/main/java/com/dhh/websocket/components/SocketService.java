@@ -22,6 +22,8 @@ import com.dhh.websocket.model.ReceiveMessageModel;
 import com.dhh.websocket.model.SendMessageModel;
 import com.dhh.websocket.model.chat.PingModel;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.lang.ref.WeakReference;
 
@@ -169,8 +171,30 @@ public class SocketService extends Service implements SocketManager.OnSocketBase
                         String jsonDataString = gson.toJson(baseTypeModel);
                         if (jsonDataString.getBytes().length / 1024 > 200) {
                             //todo 请自行处理这里的数据，最好的办法是将此次数据，存入本地数据库。多进程，是无法处理大量数据的传输的
+                            /**
+                             *  Long currentTime = System.currentTimeMillis();
+                             *  DaoTransmissionModel daoTransmissionModel = new DaoTransmissionModel();
+                             *  daoTransmissionModel.setCreateTime(currentTime);
+                             *  daoTransmissionModel.setJsonString(jsonDataString);
+                             *  receiveMessageModel.setMessageUid(String.valueOf(currentTime)); 这里往数据库存入唯一id，客户端就直接通过这个id进行查询
+                             *  DaoManagerUtils.getInstance().insertDaoTransmissionModelDao(daoTransmissionModel);
+                             */
                         } else {
-
+                            receiveMessageModel.setMsg(msg);
+                            receiveMessageModel.setType(type);
+                            if (baseTypeModel.getData() == null) {
+                                receiveMessageModel.setJsonMessage(null);
+                            } else {
+                                if (baseTypeModel.getData() instanceof JsonObject) {
+                                    JsonObject jsonObject = ((JsonObject) baseTypeModel.getData()).getAsJsonObject();
+                                    receiveMessageModel.setJsonMessage(jsonObject.toString());
+                                } else if (baseTypeModel.getData() instanceof JsonArray) {
+                                    JsonArray jsonArray = ((JsonArray) baseTypeModel.getData()).getAsJsonArray();
+                                    receiveMessageModel.setJsonMessage(jsonArray.toString());
+                                } else {
+                                    receiveMessageModel.setJsonMessage(baseTypeModel.getData().toString());
+                                }
+                            }
                         }
                         listener.resultRequestData(receiveMessageModel);
                     } catch (RemoteException e) {
